@@ -6,7 +6,7 @@ An extensible Go library that implements cronolog-like behaviour for os.File des
 Details
 -------
 
-Why not log2go?, you may ask. I wanted something simple to handle _just_ opening and closing files for me. I didn't want any log level handling, just "rename the files for me", just as you get when you pipe output through cronolog.
+Why not log4go?, you may ask. I wanted something simple to handle _just_ opening and closing files for me. I didn't want any log level handling, just "rename the files for me", just as you get when you pipe output through cronolog.
 
 CronoloGo comprises a Rotator object, that will tick away and handle whatever mutations, and the LogFile objects, that describe how you want particular files to be rotated.
 
