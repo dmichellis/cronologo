@@ -85,7 +85,9 @@ type LogFile struct {
 func (c *LogFile) Reopen() error {
 	filename := fmt.Sprintf("%s-%s", c.NamePrefix, time.Now().UTC().Format(c.TimeFormat))
 
-	if filename != c.CurrentFile {
+	_, stat_err := os.Stat(filename)
+
+	if filename != c.CurrentFile || stat_err != nil {
 		file, err_f := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err_f != nil {
 			log.Printf("CronoloGo: Failed to create new logfile '%s': %s - ignoring this change", filename, err_f)
