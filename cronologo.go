@@ -1,19 +1,31 @@
 package cronologo
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 )
 
 type Rotator struct {
-	loggers []*LogFile
-	ticker  *time.Ticker
-	running bool
+	loggers    []*LogFile
+	ticker     *time.Ticker
+	running    bool
+	updatelock sync.Mutex
 }
 
 func (c *Rotator) Add(l *LogFile) error {
+	c.updatelock.Lock()
+	defer c.updatelock.Unlock()
+	// defer func() { log.Printf("%q", c.loggers) }()
+
+	for _, v := range c.loggers {
+		if v == l {
+			return errors.New("Already exists")
+		}
+	}
 	if err := l.Reopen(); err != nil {
 		return err
 	}
@@ -24,6 +36,20 @@ func (c *Rotator) Add(l *LogFile) error {
 	loggers_ := append(c.loggers, l)
 	c.loggers = loggers_
 	return nil
+}
+
+func (c *Rotator) Del(l *LogFile) error {
+	c.updatelock.Lock()
+	defer c.updatelock.Unlock()
+	// defer func() { log.Printf("%q", c.loggers) }()
+
+	for i, v := range c.loggers {
+		if v == l {
+			c.loggers[i], c.loggers = c.loggers[len(c.loggers)-1], c.loggers[:len(c.loggers)-1]
+			return nil
+		}
+	}
+	return errors.New("Not found")
 }
 
 func (c *Rotator) Start(d time.Duration) {
